@@ -4,9 +4,17 @@ const ctx = canvas.getContext('2d');
 const canvasWidth = 300;
 const canvasHeight = 600;
 const squareSize = canvasWidth / 10;
-const canvasStartX = squareSize * 3;
-const canvasStartY = -squareSize * 3;
+const canvasStartX = 3;
+const canvasStartY = 0;
+const heightInBlocks = 20;
+const widthInBlocks = 10;
 let speed = 500;
+
+const gameState = Array(20);
+for (let i = 0; i < gameState.length; i++) {
+    gameState[i] = Array(10).fill(0);
+}
+console.log(gameState);
 
 ctx.canvas.width = canvasWidth;
 ctx.canvas.height = canvasHeight;
@@ -65,44 +73,54 @@ class Tetromino {
         this.y = canvasStartY;
         this.dx = 0;
         this.shape = shape;
-        this.dy = squareSize;
+        this.dy = 1;
         this.stopAnimation = false;
-        this.bottomY = this.y + this.shape.length * squareSize;
+        this.bottomY = this.y + this.shape.length;
     }
     drawTetromino() {
         // loop through the matrix and color where there is a 1
+        for (let row = 0; row < this.shape.length; row++) {
+            for (let col = 0; col < this.shape[0].length; col++) {
+                if (this.shape[row][col]) {
+                    gameState[row + this.y][col + this.x] = 1;
+                }
+            }
+        }
+
+        // for (let row = 0; row < this.shape.length; row++) {
+        //     for (let col = 0; col < this.shape[0].length; col++) {
+        //         if (this.shape[row][col]) {
+        //             ctx.fillRect(
+        //                 col * squareSize + canvasStartX,
+        //                 this.y + row * squareSize,
+        //                 squareSize,
+        //                 squareSize
+        //             );
+        //             ctx.strokeRect(
+        //                 col * squareSize + canvasStartX,
+        //                 this.y + row * squareSize,
+        //                 squareSize,
+        //                 squareSize
+        //             );
+        //         }
+        //     }
+        // }
+    }
+
+    update() {
+        if (this.bottomY >= heightInBlocks) {
+            this.dy = 0;
+            this.stopAnimation = true;
+        }
+        if (this.x <= 0 || this.x >= widthInBlocks) this.dx = 0;
 
         for (let row = 0; row < this.shape.length; row++) {
             for (let col = 0; col < this.shape[0].length; col++) {
                 if (this.shape[row][col]) {
-                    ctx.fillRect(
-                        col * squareSize + canvasStartX,
-                        this.y + row * squareSize,
-                        squareSize,
-                        squareSize
-                    );
-                    ctx.strokeRect(
-                        col * squareSize + canvasStartX,
-                        this.y + row * squareSize,
-                        squareSize,
-                        squareSize
-                    );
+                    gameState[row + this.y][col + this.x] = 0;
                 }
             }
         }
-    }
-
-    update() {
-        // Listen to arrow keys
-        // Space bar to move directly down
-        // Down key to increase speed
-        // Up key to rotate
-        // make the boundaries,
-        if (this.bottomY >= canvas.height) {
-            this.dy = 0;
-            this.stopAnimation = true;
-        }
-        if (this.x <= 0 || this.x >= canvas.width) this.dx = 0;
         this.y += this.dy;
         this.bottomY += this.dy;
     }
@@ -115,35 +133,14 @@ const makeTetrominoFall = () => {
     if (!tetromino.stopAnimation) {
         setTimeout(() => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            tetromino.drawTetromino();
             tetromino.update();
+            tetromino.drawTetromino();
+
+            updateGameState();
             requestAnimationFrame(makeTetrominoFall);
         }, speed);
     }
 };
-
-const gameState = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-    [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-];
 
 // if (row[i].every(ele => ele === 1)) this means it is filled up
 // then remove this row, and add a row to the top of the board?
@@ -151,3 +148,29 @@ const gameState = [
 // need to figure out how to update this table when pieces drop
 
 makeTetrominoFall();
+
+// const gameState = Array.from(Array(20), () => Array(10).fill(0));
+
+let h = gameState.length;
+let w = gameState[0].length;
+
+const updateGameState = () => {
+    for (let row = 0; row < h; row++) {
+        for (let col = 0; col < w; col++) {
+            if (gameState[row][col]) {
+                ctx.fillRect(
+                    col * squareSize,
+                    row * squareSize,
+                    squareSize,
+                    squareSize
+                );
+                ctx.strokeRect(
+                    col * squareSize,
+                    row * squareSize,
+                    squareSize,
+                    squareSize
+                );
+            }
+        }
+    }
+};
