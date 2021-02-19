@@ -15,11 +15,14 @@ for (let i = 0; i < gameBoard.length; i++) {
     gameBoard[i] = Array(10).fill(0);
 }
 
+//TODO: Figure out how to spawn tetromino above the canvas
+
 console.log(gameBoard);
 
 ctx.canvas.width = canvasWidth;
 ctx.canvas.height = canvasHeight;
 
+// Set up the grid
 ctx.strokeStyle = 'white';
 // Draw the horizontal lines
 for (let row = 0; row < heightInBlocks; row++) {
@@ -99,6 +102,8 @@ const arr = [
     [0, 1, 1],
     [1, 1, 0],
 ];
+
+const shapes = [oShape, jShape, lShape, sShape, zShape, iShape, tShape];
 
 class Tetromino {
     constructor(shape) {
@@ -229,6 +234,8 @@ setInterval(() => {
     if (!tetromino.stopAnimation) {
         makeTetrominoFall();
     } else {
-        tetromino = new Tetromino(lShape);
+        let randomIndex = Math.floor(Math.random() * shapes.length);
+        tetromino = new Tetromino(shapes[randomIndex]);
     }
 }, speed);
+// loop through the first row of the gameboard, if there is a 1 located there, then the game is over
