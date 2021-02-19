@@ -113,7 +113,7 @@ class Tetromino {
         this.shape = shape;
         this.dy = 1;
         this.stopAnimation = false;
-        this.bottomY = this.y + this.shape.matrix.length;
+        // this.bottomY = this.y + this.shape.matrix.length;
     }
     draw() {
         ctx.fillStyle = this.shape.color;
@@ -168,7 +168,7 @@ class Tetromino {
 
     update() {
         // If tetromino is at the bottom
-        if (this.bottomY >= heightInBlocks || this.isColliding()) {
+        if (this.isColliding()) {
             this.dy = 0;
             this.stopAnimation = true;
         }
@@ -199,14 +199,17 @@ class Tetromino {
         this.y += this.dy;
         this.x += this.dx;
         this.dx = 0;
-
-        // Update the bottom of the tetromino
-        this.bottomY += this.dy;
     }
 
     isColliding() {
         for (let row = 0; row < this.shape.matrix.length; row++) {
             for (let col = 0; col < this.shape.matrix[0].length; col++) {
+                if (
+                    gameBoard[row + this.y][col + this.x] === 2 &&
+                    row + this.y === 19
+                ) {
+                    return true;
+                }
                 if (
                     gameBoard[row + this.y][col + this.x] === 2 &&
                     gameBoard[row + this.y + 1][col + this.x] === 1
@@ -221,7 +224,7 @@ class Tetromino {
 
 const gameOver = false;
 
-let tetromino = new Tetromino(tShape);
+let tetromino = new Tetromino(iShape);
 
 const makeTetrominoFall = () => {
     tetromino.delete();
