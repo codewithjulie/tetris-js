@@ -10,11 +10,11 @@ const heightInBlocks = 20;
 const widthInBlocks = 10;
 let speed = 500;
 
-const gameState = Array(20);
-for (let i = 0; i < gameState.length; i++) {
-    gameState[i] = Array(10).fill(0);
+const gameBoard = Array(20);
+for (let i = 0; i < gameBoard.length; i++) {
+    gameBoard[i] = Array(10).fill(0);
 }
-console.log(gameState);
+console.log(gameBoard);
 
 ctx.canvas.width = canvasWidth;
 ctx.canvas.height = canvasHeight;
@@ -77,87 +77,81 @@ class Tetromino {
         this.stopAnimation = false;
         this.bottomY = this.y + this.shape.length;
     }
-    drawTetromino() {
-        // loop through the matrix and color where there is a 1
+    draw() {
+        // loop through the shape array and color where there is a 1
         for (let row = 0; row < this.shape.length; row++) {
             for (let col = 0; col < this.shape[0].length; col++) {
                 if (this.shape[row][col]) {
-                    gameState[row + this.y][col + this.x] = 1;
+                    gameBoard[row + this.y][col + this.x] = 1;
                 }
             }
         }
+    }
 
-        // for (let row = 0; row < this.shape.length; row++) {
-        //     for (let col = 0; col < this.shape[0].length; col++) {
-        //         if (this.shape[row][col]) {
-        //             ctx.fillRect(
-        //                 col * squareSize + canvasStartX,
-        //                 this.y + row * squareSize,
-        //                 squareSize,
-        //                 squareSize
-        //             );
-        //             ctx.strokeRect(
-        //                 col * squareSize + canvasStartX,
-        //                 this.y + row * squareSize,
-        //                 squareSize,
-        //                 squareSize
-        //             );
-        //         }
-        //     }
-        // }
+    delete() {
+        ctx.clearRect(
+            this.x * squareSize - 1,
+            this.y * squareSize,
+            this.shape.length * squareSize + 2,
+            this.shape.length * squareSize
+        );
     }
 
     update() {
+        // If tetromino is at the bottom
         if (this.bottomY >= heightInBlocks) {
             this.dy = 0;
             this.stopAnimation = true;
         }
+
+        // If the tetromino is touching the left or right wall
         if (this.x <= 0 || this.x >= widthInBlocks) this.dx = 0;
 
+        // Remove the current state of tetromino from the game state
         for (let row = 0; row < this.shape.length; row++) {
             for (let col = 0; col < this.shape[0].length; col++) {
                 if (this.shape[row][col]) {
-                    gameState[row + this.y][col + this.x] = 0;
+                    gameBoard[row + this.y][col + this.x] = 0;
                 }
             }
         }
+
+        // Update y
         this.y += this.dy;
+
+        // Update the bottom of the tetromino
         this.bottomY += this.dy;
     }
-}
 
-// Makes a tetromino
+    isColliding() {
+        // how to check if there is another block in it's way below it
+        //compare it's current state to any numbers on teh game board? or compare if the bottom y + 1 has something as a 1 on the gameboard?
+        console.log(this.x, this.y);
+    }
+}
 let tetromino = new Tetromino(lShape);
 
 const makeTetrominoFall = () => {
-    if (!tetromino.stopAnimation) {
-        setTimeout(() => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            tetromino.update();
-            tetromino.drawTetromino();
-
-            updateGameState();
-            requestAnimationFrame(makeTetrominoFall);
-        }, speed);
-    }
+    tetromino.delete();
+    tetromino.update();
+    tetromino.draw();
+    updategameBoard();
 };
 
-// if (row[i].every(ele => ele === 1)) this means it is filled up
-// then remove this row, and add a row to the top of the board?
+setInterval(() => {
+    if (!tetromino.stopAnimation) {
+        makeTetrominoFall();
+        console.log(gameBoard);
+    }
+}, speed);
 
-// need to figure out how to update this table when pieces drop
+let h = gameBoard.length;
+let w = gameBoard[0].length;
 
-makeTetrominoFall();
-
-// const gameState = Array.from(Array(20), () => Array(10).fill(0));
-
-let h = gameState.length;
-let w = gameState[0].length;
-
-const updateGameState = () => {
+const updategameBoard = () => {
     for (let row = 0; row < h; row++) {
         for (let col = 0; col < w; col++) {
-            if (gameState[row][col]) {
+            if (gameBoard[row][col]) {
                 ctx.fillRect(
                     col * squareSize,
                     row * squareSize,
