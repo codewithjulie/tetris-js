@@ -14,6 +14,8 @@ const gameBoard = Array(20);
 for (let i = 0; i < gameBoard.length; i++) {
     gameBoard[i] = Array(10).fill(0);
 }
+
+gameBoard[10][4] = 1;
 console.log(gameBoard);
 
 ctx.canvas.width = canvasWidth;
@@ -31,13 +33,13 @@ const oShape = {
 };
 const jShape = [
     [0, 0, 0],
-    [1, 0, 0],
+    [2, 0, 0],
     [1, 1, 1],
 ];
 const lShape = [
     [0, 0, 0],
-    [0, 0, 1],
     [1, 1, 1],
+    [0, 0, 1],
 ];
 const sShape = [
     [0, 0, 0],
@@ -82,7 +84,11 @@ class Tetromino {
         for (let row = 0; row < this.shape.length; row++) {
             for (let col = 0; col < this.shape[0].length; col++) {
                 if (this.shape[row][col]) {
-                    gameBoard[row + this.y][col + this.x] = 1;
+                    if (this.stopAnimation) {
+                        gameBoard[row + this.y][col + this.x] = 1;
+                    } else {
+                        gameBoard[row + this.y][col + this.x] = 2;
+                    }
                 }
             }
         }
@@ -99,7 +105,7 @@ class Tetromino {
 
     update() {
         // If tetromino is at the bottom
-        if (this.bottomY >= heightInBlocks) {
+        if (this.bottomY >= heightInBlocks || this.isColliding()) {
             this.dy = 0;
             this.stopAnimation = true;
         }
@@ -124,12 +130,20 @@ class Tetromino {
     }
 
     isColliding() {
-        // how to check if there is another block in it's way below it
-        //compare it's current state to any numbers on teh game board? or compare if the bottom y + 1 has something as a 1 on the gameboard?
-        console.log(this.x, this.y);
+        for (let row = 0; row < this.shape.length; row++) {
+            for (let col = 0; col < this.shape[0].length; col++) {
+                if (
+                    gameBoard[row + this.y][col + this.x] === 2 &&
+                    gameBoard[row + this.y + 1][col + this.x] === 1
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
-let tetromino = new Tetromino(lShape);
+let tetromino = new Tetromino(tShape);
 
 const makeTetrominoFall = () => {
     tetromino.delete();
@@ -141,7 +155,6 @@ const makeTetrominoFall = () => {
 setInterval(() => {
     if (!tetromino.stopAnimation) {
         makeTetrominoFall();
-        console.log(gameBoard);
     }
 }, speed);
 
