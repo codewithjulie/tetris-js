@@ -20,8 +20,22 @@ console.log(gameBoard);
 ctx.canvas.width = canvasWidth;
 ctx.canvas.height = canvasHeight;
 
-ctx.fillStyle = 'blue';
 ctx.strokeStyle = 'white';
+// Draw the horizontal lines
+for (let row = 0; row < heightInBlocks; row++) {
+    ctx.beginPath();
+    ctx.moveTo(0, row * squareSize);
+    ctx.lineTo(canvasWidth, row * squareSize);
+    ctx.stroke();
+}
+
+// Draw the vertical lines
+for (let col = 0; col < widthInBlocks; col++) {
+    ctx.beginPath();
+    ctx.moveTo(col * squareSize, 0);
+    ctx.lineTo(col * squareSize, canvasHeight);
+    ctx.stroke();
+}
 
 const oShape = {
     matrix: [
@@ -94,30 +108,57 @@ class Tetromino {
         this.shape = shape;
         this.dy = 1;
         this.stopAnimation = false;
-        this.bottomY = this.y + this.shape.length;
+        this.bottomY = this.y + this.shape.matrix.length;
     }
     draw() {
+        ctx.fillStyle = this.shape.color;
+
         // loop through the shape array and color where there is a 1
-        for (let row = 0; row < this.shape.length; row++) {
-            for (let col = 0; col < this.shape[0].length; col++) {
-                if (this.shape[row][col]) {
+        for (let row = 0; row < this.shape.matrix.length; row++) {
+            for (let col = 0; col < this.shape.matrix[0].length; col++) {
+                if (this.shape.matrix[row][col]) {
                     if (this.stopAnimation) {
                         gameBoard[row + this.y][col + this.x] = 1;
                     } else {
                         gameBoard[row + this.y][col + this.x] = 2;
                     }
+                    ctx.fillRect(
+                        (col + this.x) * squareSize,
+                        (row + this.y) * squareSize,
+                        squareSize,
+                        squareSize
+                    );
+                    ctx.strokeRect(
+                        (col + this.x) * squareSize,
+                        (row + this.y) * squareSize,
+                        squareSize,
+                        squareSize
+                    );
                 }
             }
         }
     }
 
     delete() {
-        ctx.clearRect(
-            this.x * squareSize - 1,
-            this.y * squareSize - 1,
-            this.shape.length * squareSize + 2,
-            this.shape.length * squareSize + 2
-        );
+        ctx.fillStyle = 'rgb(43, 34, 34)';
+        for (let row = 0; row < this.shape.matrix.length; row++) {
+            for (let col = 0; col < this.shape.matrix[0].length; col++) {
+                if (this.shape.matrix[row][col]) {
+                    ctx.fillRect(
+                        (col + this.x) * squareSize,
+                        (row + this.y) * squareSize,
+                        squareSize,
+                        squareSize
+                    );
+                    ctx.strokeRect(
+                        (col + this.x) * squareSize,
+                        (row + this.y) * squareSize,
+                        squareSize,
+                        squareSize
+                    );
+                }
+            }
+        }
     }
 
     update() {
@@ -135,14 +176,15 @@ class Tetromino {
             }
             if (e.key === 'ArrowRight') {
                 this.dx = 1;
-                if (this.x + this.shape.length >= widthInBlocks) this.dx = 0;
+                if (this.x + this.shape.matrix.length >= widthInBlocks)
+                    this.dx = 0;
             }
         });
 
         // Remove the current state of tetromino from the game state
-        for (let row = 0; row < this.shape.length; row++) {
-            for (let col = 0; col < this.shape[0].length; col++) {
-                if (this.shape[row][col]) {
+        for (let row = 0; row < this.shape.matrix.length; row++) {
+            for (let col = 0; col < this.shape.matrix[0].length; col++) {
+                if (this.shape.matrix[row][col]) {
                     gameBoard[row + this.y][col + this.x] = 0;
                 }
             }
@@ -158,8 +200,8 @@ class Tetromino {
     }
 
     isColliding() {
-        for (let row = 0; row < this.shape.length; row++) {
-            for (let col = 0; col < this.shape[0].length; col++) {
+        for (let row = 0; row < this.shape.matrix.length; row++) {
+            for (let col = 0; col < this.shape.matrix[0].length; col++) {
                 if (
                     gameBoard[row + this.y][col + this.x] === 2 &&
                     gameBoard[row + this.y + 1][col + this.x] === 1
@@ -180,7 +222,7 @@ const makeTetrominoFall = () => {
     tetromino.delete();
     tetromino.update();
     tetromino.draw();
-    updategameBoard();
+    // updategameBoard();
 };
 
 setInterval(() => {
@@ -190,27 +232,3 @@ setInterval(() => {
         tetromino = new Tetromino(lShape);
     }
 }, speed);
-
-let h = gameBoard.length;
-let w = gameBoard[0].length;
-
-const updategameBoard = () => {
-    for (let row = 0; row < h; row++) {
-        for (let col = 0; col < w; col++) {
-            if (gameBoard[row][col]) {
-                ctx.fillRect(
-                    col * squareSize,
-                    row * squareSize,
-                    squareSize,
-                    squareSize
-                );
-                ctx.strokeRect(
-                    col * squareSize,
-                    row * squareSize,
-                    squareSize,
-                    squareSize
-                );
-            }
-        }
-    }
-};
