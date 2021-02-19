@@ -15,7 +15,6 @@ for (let i = 0; i < gameBoard.length; i++) {
     gameBoard[i] = Array(10).fill(0);
 }
 
-gameBoard[10][4] = 1;
 console.log(gameBoard);
 
 ctx.canvas.width = canvasWidth;
@@ -25,43 +24,61 @@ ctx.fillStyle = 'blue';
 ctx.strokeStyle = 'white';
 
 const oShape = {
-    color: 'yellow',
-    shape: [
+    matrix: [
         [1, 1],
         [1, 1],
     ],
+    color: 'yellow',
 };
-const jShape = [
-    [0, 0, 0],
-    [2, 0, 0],
-    [1, 1, 1],
-];
-const lShape = [
-    [0, 0, 0],
-    [1, 1, 1],
-    [0, 0, 1],
-];
-const sShape = [
-    [0, 0, 0],
-    [0, 1, 1],
-    [1, 1, 0],
-];
-const zShape = [
-    [0, 0, 0],
-    [1, 1, 0],
-    [0, 1, 1],
-];
-const tShape = [
-    [0, 0, 0],
-    [0, 1, 0],
-    [1, 1, 1],
-];
-const iShape = [
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [1, 1, 1, 1],
-    [0, 0, 0, 0],
-];
+const jShape = {
+    matrix: [
+        [0, 0, 0],
+        [2, 0, 0],
+        [1, 1, 1],
+    ],
+    color: 'blue',
+};
+const lShape = {
+    matrix: [
+        [0, 0, 0],
+        [1, 1, 1],
+        [0, 0, 1],
+    ],
+    color: 'orange',
+};
+const sShape = {
+    matrix: [
+        [0, 0, 0],
+        [0, 1, 1],
+        [1, 1, 0],
+    ],
+    color: 'green',
+};
+const zShape = {
+    matrix: [
+        [0, 0, 0],
+        [1, 1, 0],
+        [0, 1, 1],
+    ],
+    color: 'red',
+};
+const tShape = {
+    matrix: [
+        [0, 0, 0],
+        [0, 1, 0],
+        [1, 1, 1],
+    ],
+    color: 'purple',
+};
+const iShape = {
+    matrix: [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [1, 1, 1, 1],
+        [0, 0, 0, 0],
+    ],
+    color: 'cyan',
+};
 
 const arr = [
     [0, 0, 0],
@@ -154,6 +171,9 @@ class Tetromino {
         return false;
     }
 }
+
+const gameOver = false;
+
 let tetromino = new Tetromino(tShape);
 
 const makeTetrominoFall = () => {
@@ -166,6 +186,8 @@ const makeTetrominoFall = () => {
 setInterval(() => {
     if (!tetromino.stopAnimation) {
         makeTetrominoFall();
+    } else {
+        tetromino = new Tetromino(lShape);
     }
 }, speed);
 
