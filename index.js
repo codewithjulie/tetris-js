@@ -97,9 +97,9 @@ class Tetromino {
     delete() {
         ctx.clearRect(
             this.x * squareSize - 1,
-            this.y * squareSize,
+            this.y * squareSize - 1,
             this.shape.length * squareSize + 2,
-            this.shape.length * squareSize
+            this.shape.length * squareSize + 2
         );
     }
 
@@ -110,8 +110,17 @@ class Tetromino {
             this.stopAnimation = true;
         }
 
-        // If the tetromino is touching the left or right wall
-        if (this.x <= 0 || this.x >= widthInBlocks) this.dx = 0;
+        document.addEventListener('keydown', e => {
+            console.log(e.key);
+            if (e.key === 'ArrowLeft') {
+                this.dx = -1;
+                if (this.x <= 0) this.dx = 0;
+            }
+            if (e.key === 'ArrowRight') {
+                this.dx = 1;
+                if (this.x + this.shape.length >= widthInBlocks) this.dx = 0;
+            }
+        });
 
         // Remove the current state of tetromino from the game state
         for (let row = 0; row < this.shape.length; row++) {
@@ -124,6 +133,8 @@ class Tetromino {
 
         // Update y
         this.y += this.dy;
+        this.x += this.dx;
+        this.dx = 0;
 
         // Update the bottom of the tetromino
         this.bottomY += this.dy;
