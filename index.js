@@ -96,7 +96,6 @@ const iShape = {
     ],
     color: 'cyan',
 };
-
 const arr = [
     [0, 0, 0],
     [0, 1, 1],
@@ -171,21 +170,20 @@ class Tetromino {
         if (this.isColliding()) {
             this.dy = 0;
             this.stopAnimation = true;
+            this.dx = 0;
         }
-
         document.addEventListener('keydown', e => {
             console.log(e.key);
-            if (e.key === 'ArrowLeft') {
+            if (e.key === 'ArrowLeft' && !this.isCollidingLeft()) {
                 this.dx = -1;
                 if (this.x <= 0) this.dx = 0;
             }
-            if (e.key === 'ArrowRight') {
+            if (e.key === 'ArrowRight' && !this.isCollidingRight()) {
                 this.dx = 1;
                 if (this.x + this.shape.matrix.length >= widthInBlocks)
                     this.dx = 0;
             }
         });
-
         // Remove the current state of tetromino from the game state
         for (let row = 0; row < this.shape.matrix.length; row++) {
             for (let col = 0; col < this.shape.matrix[0].length; col++) {
@@ -220,9 +218,33 @@ class Tetromino {
         }
         return false;
     }
+    isCollidingLeft() {
+        for (let row = 0; row < this.shape.matrix.length; row++) {
+            for (let col = 0; col < this.shape.matrix[0].length; col++) {
+                if (
+                    gameBoard[row + this.y][col + this.x] === 2 &&
+                    gameBoard[row + this.y][col + this.x - 1] === 1
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    isCollidingRight() {
+        for (let row = 0; row < this.shape.matrix.length; row++) {
+            for (let col = 0; col < this.shape.matrix[0].length; col++) {
+                if (
+                    gameBoard[row + this.y][col + this.x] === 2 &&
+                    gameBoard[row + this.y][col + this.x + 1] === 1
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
-
-const gameOver = false;
 
 let tetromino = new Tetromino(iShape);
 
@@ -233,7 +255,7 @@ const makeTetrominoFall = () => {
     // updategameBoard();
 };
 
-setInterval(() => {
+const setIntervalId = setInterval(() => {
     if (!tetromino.stopAnimation) {
         makeTetrominoFall();
     } else {
@@ -242,3 +264,7 @@ setInterval(() => {
     }
 }, speed);
 // loop through the first row of the gameboard, if there is a 1 located there, then the game is over
+
+const gameOver = () => {
+    clearInterval(setIntervalId);
+};
